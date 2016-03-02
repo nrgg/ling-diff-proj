@@ -1,0 +1,4 @@
+scipy==0.17.0
+pandas==0.17.1
+scikit-learn==0.17.1
+downhill==0.3.2
