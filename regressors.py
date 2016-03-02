@@ -8,9 +8,17 @@ import theano.sparse as tsparse
 import sklearn.base as base
 import sklearn.neighbors as neighbors
 import sklearn.cross_validation as cv
+import sklearn.metrics.pairwise as pairwise
 import scipy.sparse as sparse
 
-import util
+
+def symmetrify_similarity(g, vecs):
+    rows, cols = g.nonzero()
+    gdense = g.toarray()
+    for row, col in zip(rows, cols):
+        sim = pairwise.cosine_similarity([vecs[row], vecs[col]])[0, 1]
+        gdense[col, row] = gdense[row, col] = sim
+    return sparse.csr_matrix(gdense)
 
 
 class XYLDataset(object):
@@ -160,7 +168,7 @@ class SSparseRegressor(
             metric="euclidean"
         )
         self.L = sparse.csgraph.laplacian(
-            util.symmetrify_similarity(kn, _to_sparsify_on)
+            symmetrify_similarity(kn, _to_sparsify_on)
         )
         self.alpha = alpha
         self.lambda_1 = lambda_1
